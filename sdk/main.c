@@ -3,7 +3,7 @@
 #include "xdebug.h"
 #include "xiic.h"
 #include "xintc.h"
-
+#include "xuartlite.h"
 #include "audio/audio.h"
 #include "bluetooth/bluetooth.h"
 #include "iic/iic.h"
@@ -12,11 +12,11 @@
 #include "dma/dma.h"
 
 static XIic sIic;
-static XUartLite UartLite;
+XUartLite UartLite;
 static XIntc sIntc;
 
-extern u8 freq;
-extern u8 div[10];
+extern u8 volatile bluetooth_data[2];
+extern u8 volatile div[10];
 extern volatile int done;
 
 const ivt_t ivt[] = {
@@ -37,6 +37,7 @@ int main()
 
 	Bluetooth_Init(&UartLite);
 	Add_gen_init();
+	DMA_init();
 	fnInitInterruptController(&sIntc);
 	fnInitIic(&sIic);
 	fnInitAudio();
@@ -44,7 +45,7 @@ int main()
 
 	for(int i = 0; i < 512; i++)
 	{
-		int out = nextSample(freq,div);
+		int out = 0;
 		tab_L[i] = out;
 		tab_R[i] = out;
 		done = 1;
@@ -55,10 +56,12 @@ int main()
 
 	while(1)
 	{
+
 		if(done == 0)
 		{
 			for(int i = 0; i < 512; i++)
 			{
+
 				int out = nextSample(freq,div);
 				tab_L[i] = out;
 				tab_R[i] = out;

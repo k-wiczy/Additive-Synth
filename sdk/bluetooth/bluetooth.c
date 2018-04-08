@@ -32,4 +32,11 @@ void Bluetooth_Init(XUartLite * ptr)
 	XUartLite_EnableInterrupt(ptr);
 
 }
-
+u8 getfreq()
+{
+	return freq;
+}
+u8 * getdiv()
+{
+	return div;
+}
